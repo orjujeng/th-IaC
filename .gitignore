@@ -1,0 +1,36 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+#*.tfvars
+*.tfvars.json
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+
+# Local .terraform directory
+.terraform/
+
+# Crash log files
+crash.log
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore plan files
+*.tfplan
+
+# IDE and editor specific files
+*.swp
+*.swo
+*.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
