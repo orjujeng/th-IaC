@@ -1,8 +1,8 @@
 variable "region" {
-  type = string 
+  type = string
 }
 
 variable "start_service" {
-  type = bool
+  type    = bool
   default = false
 }
