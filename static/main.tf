@@ -31,3 +31,13 @@ module "rds" {
   rds_availability_zone = data.aws_availability_zones.available.names[0]
   container_sg_id       = module.container_config[0].container_sg_id
 }
+
+module "redis" {
+  count            = var.start_service ? 1 : 0
+  source           = "./moudle/radis"
+  cluster_mode     = false
+  perfix           = local.perfix
+  vpc_id           = module.vpc[0].vpc_id
+  container_sg_id  = module.container_config[0].container_sg_id
+  redis_subnet_ids = module.vpc[0].private_subnet_id
+}
