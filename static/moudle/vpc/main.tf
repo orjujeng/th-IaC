@@ -45,7 +45,7 @@ resource "aws_subnet" "application_inside_net" {
 }
 
 #private subnet for rds redis efs 
-resource "aws_subnet" "orjujeng_private_net" {
+resource "aws_subnet" "application_private_net" {
   for_each = local.private_subnets
   vpc_id            = aws_vpc.application_vpc.id
   cidr_block        = each.value.private_subnet_cidr
