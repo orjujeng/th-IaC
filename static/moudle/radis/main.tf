@@ -50,7 +50,7 @@ resource "aws_security_group" "application_redis_sg" {
 }
 #单节点模式
 resource "aws_elasticache_cluster" "application_elasticache_replica" {
- count = var.cluster_mode ? 0 : 1
+  count = var.cluster_mode ? 0 : 1
   cluster_id           = "${var.perfix}-elasticache"
   engine               = "redis"
   node_type            = "cache.t3.micro"

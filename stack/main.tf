@@ -4,3 +4,10 @@ module "tfstate_dynanodb" {
   dynamedb_name ="${local.perfix}-stack-lock"
   perfix= local.perfix
 }
+
+module "container" {
+  count = var.start_service ? 1 : 0
+  source = "./moudle/container"
+  perfix= local.perfix
+  container_status = false #决定ec2实例开关状态，true为开启
+}
