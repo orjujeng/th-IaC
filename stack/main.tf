@@ -9,5 +9,5 @@ module "container" {
   count = var.start_service ? 1 : 0
   source = "./moudle/container"
   perfix= local.perfix
-  container_status = false #决定ec2实例开关状态，true为开启
+  container_status = var.shutdown_saving_cost #决定ec2实例开关状态，true为开启
 }

@@ -1,6 +1,7 @@
 #redis 和rds几乎相同，
 #另外还有两个模式，集群模式和正常模式，集群模式可以分为多了切片，正常模式可能只有16个数据库，但是无论如何，都有主从模式。
 #分为一主多从，和多主多从，主负责写，从负责读。
+#这参考文档没看懂，挨个试太费时间了，以后补上
 
 #子网
 resource "aws_elasticache_subnet_group" "application_redis_subnet_group" {

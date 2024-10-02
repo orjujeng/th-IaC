@@ -41,3 +41,12 @@ module "redis" {
   container_sg_id  = module.container_config[0].container_sg_id
   redis_subnet_ids = module.vpc[0].private_subnet_id
 }
+
+module "route53" {
+  count            = var.start_service && var.shutdown_saving_cost ? 1 : 0
+  source           = "./moudle/route53"
+  domain_name      = var.domain_name
+  perfix           = local.perfix
+  rds_address      = module.rds[0].rds_address
+  redis_address    = [module.redis[0].redis_address]
+}
