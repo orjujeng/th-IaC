@@ -16,6 +16,15 @@ resource "aws_iam_instance_profile" "application_container_instance_profile" {
   role = aws_iam_role.application_container_iam_role.name
 }
 
+#连接本地ssh连接 ec2的key 获取途径 cat ~/.ssh/id_rsa.pub 本地一定要安装ssh，并且sg开启22号端口
+resource "aws_key_pair" "local_macmini_ec2_key_pair" {
+  key_name   = "local_macmini_ec2_key_pair"
+  public_key = var.ssh_key
+  tags = {
+    Name = "local_macmini_ec2_key_pair"
+  }
+}
+
 #ec2 
 resource "aws_instance" "application_container_bastion_instance" {
   count                       = var.container_status ? 1:0
@@ -25,6 +34,7 @@ resource "aws_instance" "application_container_bastion_instance" {
   vpc_security_group_ids      = [data.aws_security_group.application_container_sg.id]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.application_container_instance_profile.name
+  key_name                    = aws_key_pair.local_macmini_ec2_key_pair.key_name
   user_data = <<EOF
                  #!/bin/bash
                  sudo yum install -y docker wget
@@ -37,6 +47,7 @@ resource "aws_instance" "application_container_bastion_instance" {
                  sudo cd /home/ec2-user 
                  sudo wget https://aws-codedeploy-ap-northeast-1.s3.ap-northeast-1.amazonaws.com/latest/install
                  sudo chmod +x ./install
+                 sudo yum install mysql -y
                  sudo ./install auto
               EOF
   tags = {

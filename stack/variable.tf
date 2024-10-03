@@ -11,3 +11,7 @@ variable "shutdown_saving_cost" {
   type    = bool
   default = false
 }
+variable "ssh_key" {
+  type = string 
+  nullable = false
+}
