@@ -12,3 +12,8 @@ variable "ssh_key" {
   type = string
   nullable = false
 }
+
+variable "bastion_status" {
+  type = bool
+  nullable = false
+}

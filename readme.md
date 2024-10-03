@@ -22,3 +22,5 @@
                      sudo cp src/redis-cli /usr/bin
                      redis-cli -h th-dev-elasticache.4ublli.0001.apne1.cache.amazonaws.com:6379 -p 6379 -a password
      6. ec2 的每个ipv4地址会收费，0.005刀每小时，不用时ec2关停。 每一个hostzone每月会收取0.5刀的费用建议关停
+     7. 本地ide通过ec2连接rds
+          ssh -L 3307:th-dev-rds.orjujeng.click:3306 ec2-user@43.207.191.104

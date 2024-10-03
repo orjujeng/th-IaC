@@ -1,0 +1,26 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      java: corretto17 
+  pre_build:
+    commands:
+      - echo ${REPO_HTTPS}
+      - git clone -b ${BRANCH} ${REPO_HTTPS} repo
+      - cd repo
+  build:
+    commands:
+      - echo build mode
+      - mvn clean package -q -Dskiptests=true
+  post_build:
+    commands:
+      - cp Dockerfile ../
+      - cp -r target ../
+      - cp appspec.yml ../
+      - cp build_expose.sh ../
+artifacts:
+  files:
+    - Dockerfile
+    - target/*.jar
+    - appspec.yml
+    - build_expose.sh

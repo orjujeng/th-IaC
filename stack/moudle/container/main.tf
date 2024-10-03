@@ -10,6 +10,7 @@ resource "aws_iam_role_policy_attachment" "container_iam_role_attach_ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
 }
 
+
 #当这个role需要给ec2相关的contain使用时，必须添加instance profile，并且删的时候需要通过cli命令进行删除。
 resource "aws_iam_instance_profile" "application_container_instance_profile" {
   name = "${var.perfix}_ec2_instance_profile"
@@ -27,7 +28,7 @@ resource "aws_key_pair" "local_macmini_ec2_key_pair" {
 
 #ec2 
 resource "aws_instance" "application_container_bastion_instance" {
-  count                       = var.container_status ? 1:0
+  count                       = var.container_status && var.bastion_status ? 1:0
   ami                         = data.aws_ami.latest-ecs-support-ami.id
   instance_type               = "t2.micro"
   subnet_id                   = data.aws_subnets.inside_subnets.ids[0] #inside 1 子网中建立

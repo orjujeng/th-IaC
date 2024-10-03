@@ -1,8 +1,8 @@
 variable "region" {
-  type = string 
+  type = string
 }
 variable "start_service" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -12,6 +12,15 @@ variable "shutdown_saving_cost" {
   default = false
 }
 variable "ssh_key" {
-  type = string 
+  type     = string
+  nullable = false
+}
+variable "bastion_status" {
+  type    = bool
+  default = false
+}
+
+variable "mode" {
+  type     = string
   nullable = false
 }
