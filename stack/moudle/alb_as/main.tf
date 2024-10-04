@@ -10,16 +10,9 @@ resource "aws_security_group" "applicaton_load_balance_sg" {
   vpc_id      = data.aws_vpc.application_vpc.id
   #应该只放行api gateway 等我完善一下
   ingress {
-    description = "http to alb"
+    description = "http resoucre to alb"
     from_port   = 80
     to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    description = "https to alb"
-    from_port   = 443
-    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -37,8 +30,9 @@ resource "aws_security_group" "applicaton_load_balance_sg" {
 
 
 resource "aws_alb" "applicaton_load_balance" {
+  count = var.shutdown_saving_cost ? 1:0
   name               = "${var.perfix}-${var.mode}-load-balance"
-  internal           = true
+  internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.applicaton_load_balance_sg.id]
   subnets            = data.aws_subnets.inside_subnets.ids
@@ -70,8 +64,8 @@ resource "aws_lb_target_group" "applicaton_target_group" {
 
 #ec2 的 target_group 与alb 关联 其中alb的80端口指向 实例的8080端口
 resource "aws_lb_listener" "applicaton_lb_ass_target" {
-  count             = var.mode=="ecc" ? 1 : 0 
-  load_balancer_arn = aws_alb.applicaton_load_balance.arn
+  count             = var.mode=="ecc" && var.shutdown_saving_cost? 1 : 0 
+  load_balancer_arn = aws_alb.applicaton_load_balance[0].arn
   port              = "80"
   protocol          = "HTTP"
 
@@ -115,7 +109,7 @@ resource "aws_autoscaling_group" "applcition_ec2_autoscaling" {
   min_size                  = var.min_size
   desired_capacity          = var.expect_size
   health_check_grace_period = 300
-  health_check_type         = "ELB"
+  health_check_type         = "ELB" ##ELB//EC2
   force_delete              = true
   vpc_zone_identifier       = data.aws_subnets.inside_subnets.ids
 

@@ -38,11 +38,11 @@ resource "aws_codedeploy_deployment_group" "applcaiton_codedeploy_ecc_group" {
     }
   }
   #部署到哪一个tg
-  load_balancer_info {
-    target_group_info {
-      name = var.ecc_target_group_name
-    }
-  }
+  # load_balancer_info {
+  #   target_group_info {
+  #     name = var.ecc_target_group_name
+  #   }
+  # }
   deployment_config_name      = "CodeDeployDefault.AllAtOnce"
   #tg所对应的ag是什么，我觉得如果使用ag不需要告诉使用哪一个tg
   autoscaling_groups          = [var.ecc_autoscaling_group_id]

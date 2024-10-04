@@ -22,6 +22,7 @@ module "alb_as" {
   max_size = 1
   min_size = 0
   expect_size = var.shutdown_saving_cost ? 1 : 0
+  shutdown_saving_cost = var.shutdown_saving_cost
 }
 
 module "backend_codepipeline" {
@@ -31,6 +32,15 @@ module "backend_codepipeline" {
   mode   = var.mode 
   backend_repo = var.mode == "ecc" ? "https://github.com/orjujeng/th-backend.git" : null
   backend_ecc_branch = var.mode == "ecc" ? "aws-ec2" : null
-  ecc_target_group_name = var.mode == "ecc" ? module.alb_as[0].applcition_applicaton_load_balance_name: null
+  ecc_target_group_name = null #var.mode == "ecc" ? module.alb_as[0].applcition_load_balance_name: null
   ecc_autoscaling_group_id = var.mode == "ecc" ? module.alb_as[0].applcition_ec2_autoscaling_id: null
+  shutdown_saving_cost = var.shutdown_saving_cost
+}
+
+
+module "api_gateway" {
+  count  = var.start_service && var.shutdown_saving_cost ? 1 : 0
+  source = "./moudle/api_gateway"
+  perfix = local.perfix
+  applcition_load_balance_dns_name = module.alb_as[0].applcition_load_balance_dns_name
 }

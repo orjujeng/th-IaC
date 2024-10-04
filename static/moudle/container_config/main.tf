@@ -12,20 +12,13 @@ resource "aws_security_group" "application_container_sg" {
   }
 
   ingress {
-    description = "https to container"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "ecc alb to ec2"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [data.aws_security_group.application_alb_sg.id]
   }
 
-  ingress {
-    description = "http to container"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port       = 0

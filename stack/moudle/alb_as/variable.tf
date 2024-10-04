@@ -22,3 +22,8 @@ variable "expect_size" {
   type = number
   nullable = false
 }
+
+variable "shutdown_saving_cost"{
+  type = bool
+  nullable = false
+}

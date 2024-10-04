@@ -17,3 +17,7 @@ variable "ecc_target_group_name" {
 variable "ecc_autoscaling_group_id" {
   type=string
 }
+
+variable "shutdown_saving_cost" {
+  type = bool
+}

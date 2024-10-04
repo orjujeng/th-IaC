@@ -13,7 +13,7 @@ resource "aws_iam_role_policy" "application_codepipeline_policy" {
 
 #codepipline ec2专用pipeline
 resource "aws_codepipeline" "application_ec2_backend_codepipeline" {
-  count = var.mode =="ecc"?1:0
+  count = var.mode =="ecc" && var.shutdown_saving_cost ==true ?1:0
   name     = "${var.perfix}-ec2-backend-codepipeline"
   role_arn = aws_iam_role.application_codepipeline_role.arn
 
