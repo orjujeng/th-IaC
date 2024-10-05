@@ -44,3 +44,12 @@ module "api_gateway" {
   perfix = local.perfix
   applcition_load_balance_dns_name = module.alb_as[0].applcition_load_balance_dns_name
 }
+
+module "frondend_codepipeline" {
+  count  = var.start_service ? 1 : 0
+  source = "./moudle/codepipeline_frontend"
+  shutdown_saving_cost = var.shutdown_saving_cost
+  perfix = local.perfix
+  frontend_repo = "https://github.com/orjujeng/th-frontend.git"
+  frontend_branch = "aws"
+}

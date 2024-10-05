@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - node --version  
+  pre_build:
+    commands:
+      - echo ${REPO_HTTPS}
+      - git clone -b ${BRANCH} ${REPO_HTTPS} repo
+      - cd repo
+  build:
+    commands:
+      - npm install
+      - npm run build
+  post_build:
+    commands:
+      - aws s3 sync build/ s3://${S3_DST}/ --delete

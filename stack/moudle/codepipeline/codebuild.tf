@@ -34,7 +34,6 @@ resource "aws_iam_role_policy_attachment" "applcation_ecc_codebuild_role_attach_
 
 #CodeBuildDeveloper 权限
 resource "aws_iam_role_policy_attachment" "applcation_ecc_codebuild_role_attach_AWSCodeBuildDeveloperAccess" {
-    
   role       = aws_iam_role.applcation_ecc_codebuild_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess"
 }

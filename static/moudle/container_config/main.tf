@@ -19,7 +19,6 @@ resource "aws_security_group" "application_container_sg" {
     security_groups = [data.aws_security_group.application_alb_sg.id]
   }
 
-
   egress {
     from_port       = 0
     to_port         = 0
