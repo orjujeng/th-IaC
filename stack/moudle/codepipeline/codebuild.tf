@@ -117,4 +117,90 @@ resource "aws_codebuild_project" "application_ecc_codebuild" {
   }
 }
 
-#######ecs 部分
+#######ecs 部分###############
+#ecs的codebuild role主要多了ecr部分
+resource "aws_iam_role" "applcation_ecs_codebuild_role" {
+  name               = "${var.perfix}_ecs_codebuild_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_to_codebuild.json
+}
+
+resource "aws_iam_role_policy" "applcation_ecs_codebuild_policy" {
+  name   = "${var.perfix}_ecs_codebuild_policy"
+  role   = aws_iam_role.applcation_ecs_codebuild_role.id
+  policy = data.aws_iam_policy_document.application_ecs_codebuild_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "applcation_ecs_codebuild_role_attach_AmazonEC2ContainerRegistryPowerUser" {
+  role       = aws_iam_role.applcation_ecs_codebuild_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+}
+
+resource "aws_iam_role_policy_attachment" "orjujeng_ecs_codebuild_role_attach_AmazonElasticContainerRegistryPublicFullAccess" {
+  role       = aws_iam_role.applcation_ecs_codebuild_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicFullAccess"
+}
+
+
+####ecs codebuild compile
+resource "aws_codebuild_project" "application_codebuild_ecs_compile" {
+  count = var.mode =="ecs"?1:0
+  name                 = "${var.perfix}_codebuild_ecs_compile"
+  description          = "${var.perfix}_codebuild_ecs_compile"
+  build_timeout        = 60
+  service_role         = aws_iam_role.applcation_ecs_codebuild_role.arn
+  resource_access_role = aws_iam_role.applcation_ecs_codebuild_role.arn
+
+  artifacts {
+    type      = "S3"
+    location  = aws_s3_bucket.application_artifacts_file.bucket
+    packaging = "ZIP"
+    path      = "/${var.perfix}_ecs_codebuild_artifacts/"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+    privileged_mode             = true
+    environment_variable {
+      name  = "REPO_HTTPS"
+      value =  var.backend_repo
+    }
+    environment_variable {
+      name  = "BRANCH"
+      value = var.backend_ecc_branch
+    }
+    environment_variable {
+      name  = "ECR_REPO"
+      value = var.ecr_repo
+    }
+
+     environment_variable {
+      name  = "PERFIX"
+      value = var.perfix
+    }
+  }
+
+  source {
+    type      = "NO_SOURCE"
+    buildspec = file("./moudle/codepipeline/buildspec/code_compile_ecs.yml")
+  }
+
+  # vpc_config {
+  #   vpc_id = aws_vpc.orjujeng_vpc.id
+
+  #   subnets = [
+  #     aws_subnet.orjujeng_inside_net_1a.id,
+  #     aws_subnet.orjujeng_inside_net_1c.id,
+  #   ]
+
+  #   security_group_ids = [
+  #     aws_security_group.orjujeng_codebuild_sg.id
+  #   ]
+  # }
+
+  tags = {
+    Name = "${var.perfix}_codebuild_ecs_compile"
+  }
+}

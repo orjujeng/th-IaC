@@ -21,3 +21,27 @@ variable "ecc_autoscaling_group_id" {
 variable "shutdown_saving_cost" {
   type = bool
 }
+
+variable "ecr_repo" {
+  type=string
+}
+
+variable "ecs_cluster_name" {
+  type=string
+}
+
+variable "ecs_service_name" {
+  type=string
+}
+
+variable "ecs_alb_listener_arn" {
+  type=string
+}
+
+variable "ecs_tg_name" {
+  type=string
+}
+
+variable "ecs_tg_b_name" {
+  type=string
+}

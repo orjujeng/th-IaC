@@ -23,6 +23,10 @@ module "alb_as" {
   min_size = 0
   expect_size = var.shutdown_saving_cost ? 1 : 0
   shutdown_saving_cost = var.shutdown_saving_cost
+  ecs_base_on_ec2_min_size = 0
+  ecs_base_on_ec2_max_size = 2
+  ecs_base_on_ec2_desired_capacity = var.shutdown_saving_cost ? 2 : 0 #ecs中ec2 数量
+  ecs_cluster_name = module.ecs[0].ecs_cluster_name
 }
 
 module "backend_codepipeline" {
@@ -30,11 +34,17 @@ module "backend_codepipeline" {
   source = "./moudle/codepipeline"
   perfix = local.perfix
   mode   = var.mode 
-  backend_repo = var.mode == "ecc" ? "https://github.com/orjujeng/th-backend.git" : null
-  backend_ecc_branch = var.mode == "ecc" ? "aws-ec2" : null
+  backend_repo = var.mode == "ecc" ? "https://github.com/orjujeng/th-backend.git" : "https://github.com/orjujeng/th-backend.git"
+  backend_ecc_branch = var.mode == "ecc" ? "aws-ec2" : "aws-ecs"
   ecc_target_group_name = null #var.mode == "ecc" ? module.alb_as[0].applcition_load_balance_name: null
-  ecc_autoscaling_group_id = var.mode == "ecc" ? module.alb_as[0].applcition_ec2_autoscaling_id: null
+  ecc_autoscaling_group_id =  module.alb_as[0].applcition_ec2_autoscaling_id
   shutdown_saving_cost = var.shutdown_saving_cost
+  ecs_tg_name = module.alb_as[0].ecs_tg_name
+  ecs_tg_b_name = module.alb_as[0].ecs_tg_b_name
+  ecs_alb_listener_arn = module.alb_as[0].ecs_alb_listener_arn
+  ecs_service_name = module.ecs[0].ecs_service_name
+  ecs_cluster_name = module.ecs[0].ecs_cluster_name
+  ecr_repo = module.ecs[0].ecr_repository_url
 }
 
 
@@ -52,4 +62,20 @@ module "frondend_codepipeline" {
   perfix = local.perfix
   frontend_repo = "https://github.com/orjujeng/th-frontend.git"
   frontend_branch = "aws"
+}
+
+module "ecs" {
+  count  = var.start_service ? 1 : 0
+  source = "./moudle/ecs"
+  perfix = local.perfix
+  mode   = var.mode
+  ecs_task_desired_num = var.shutdown_saving_cost ? 2 : 0
+  ecs_target_group_arn =  module.alb_as[0].ecs_target_group_arn
+  application_ecs_base_on_ec2_autoscaling_arn = module.alb_as[0].application_ecs_base_on_ec2_autoscaling_arn
+  ecs_task_min_num = 0
+  ecs_task_max_num = 2
+  shutdown_saving_cost = var.shutdown_saving_cost
+  providers = {
+    aws.east = aws.us_east_1
+  }
 }

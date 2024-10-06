@@ -16,12 +16,17 @@ resource "aws_api_gateway_rest_api" "application_rest_api_gateway" {
 }
 
 # 创建 API Gateway 资源
-resource "aws_api_gateway_resource" "application_resource" {
+resource "aws_api_gateway_resource" "application_api_resource" {
   rest_api_id = aws_api_gateway_rest_api.application_rest_api_gateway.id
   parent_id   = aws_api_gateway_rest_api.application_rest_api_gateway.root_resource_id
-  path_part   = "{proxy+}"
+  path_part   = "api"
 }
 
+resource "aws_api_gateway_resource" "application_resource" {
+  rest_api_id = aws_api_gateway_rest_api.application_rest_api_gateway.id
+  parent_id   = aws_api_gateway_resource.application_api_resource.id
+  path_part   = "{proxy+}"
+}
 # 创建 API Gateway 方法
 resource "aws_api_gateway_method" "application_method" {
   rest_api_id   = aws_api_gateway_rest_api.application_rest_api_gateway.id

@@ -88,3 +88,39 @@ data "aws_iam_policy_document" "application_codepipeline_policy" {
   }
 
 }
+
+#ecs codebuild的额外策略
+data "aws_iam_policy_document" "application_ecs_codebuild_policy" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:*"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:GetAuthorizationToken"
+    ]
+
+    resources = ["*"]
+  }
+}

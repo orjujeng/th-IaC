@@ -46,7 +46,7 @@ resource "aws_alb" "applicaton_load_balance" {
 resource "aws_lb_target_group" "applicaton_target_group" {
   count        = var.mode=="ecc" ? 1 : 0 
   name        = "${var.perfix}-${var.mode}-target-group"
-  port        = 8080
+  port        = "80"
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.application_vpc.id
   target_type = "instance"
@@ -99,9 +99,9 @@ resource "aws_launch_template" "applicaton_ec2_template" {
   tags = {
     Name = "${var.perfix}-${var.mode}-ec2-template"
   }
-  user_data = var.mode =="ecc"? filebase64("./moudle/alb_as/buildspec/ec2_init.sh") : filebase64("./moudle/alb_as/buildspec/ecs_init.sh")
+  user_data = var.mode =="ecc"? filebase64("./moudle/alb_as/buildspec/ec2_init.sh"):filebase64("./moudle/alb_as/buildspec/ecs_init.sh")
 }
-#ec2 的acto_scaling
+#ec2 的auto_scaling
 resource "aws_autoscaling_group" "applcition_ec2_autoscaling" {
   count             = var.mode=="ecc" ? 1 : 0 
   name                      = "${var.perfix}-${var.mode}-autoscaling"
@@ -124,3 +124,71 @@ resource "aws_autoscaling_group" "applcition_ec2_autoscaling" {
     propagate_at_launch = true
   }
 }
+
+##ecs相关
+
+#ecs的容器使用基于ec2的实例所以需要创建一个ec2的sg，但是却是ecs使用。
+resource "aws_autoscaling_group" "application_ecs_base_on_ec2_autoscaling" {
+  count    = var.mode== "ecs" ? 1 : 0 
+  name     = "${var.perfix}_ecs_base_on_ec2_autoscaling"
+  max_size = var.ecs_base_on_ec2_max_size
+  min_size = var.ecs_base_on_ec2_min_size
+  # need close for saving unit
+  desired_capacity          = var.ecs_base_on_ec2_desired_capacity
+  health_check_grace_period = 300
+  health_check_type         = "ELB"
+  force_delete              = true
+  vpc_zone_identifier       = data.aws_subnets.inside_subnets.ids
+  launch_template {
+    name    = aws_launch_template.applicaton_ec2_template.name #必须刷一个ec2脚本 并且需要额外的role
+    version = "$Latest"
+  }
+}
+# alb 和 ecs target 绑定
+resource "aws_alb_listener" "apllcation_alb_ecs_listener" {
+  count    = var.mode== "ecs" &&var.shutdown_saving_cost? 1 : 0 
+  load_balancer_arn =  aws_alb.applicaton_load_balance[0].arn 
+  port              = "80"
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.application_specific_api_target_group[0].arn
+  }
+}
+#ecs 具体service的tg（蓝绿两组）
+resource "aws_lb_target_group" "application_specific_api_target_group" {
+  count                = var.mode== "ecs" ? 1 : 0 
+  name                 = "${var.perfix}-api-tg"
+  port                 = "80"
+  protocol             = "HTTP"
+  vpc_id               = data.aws_vpc.application_vpc.id
+  deregistration_delay = 120
+  health_check {
+    healthy_threshold   = "5"
+    unhealthy_threshold = "2"
+    interval            = "300"
+    path                = "/actuator/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = "30"
+  }
+}
+
+resource "aws_lb_target_group" "application_specific_api_target_group_b" {
+  count                = var.mode== "ecs" ? 1 : 0 
+  name                 = "${var.perfix}-api-tg-b"
+  port                 = "80"
+  protocol             = "HTTP"
+  vpc_id               = data.aws_vpc.application_vpc.id
+  deregistration_delay = 120
+ health_check {
+    healthy_threshold   = "5"
+    unhealthy_threshold = "2"
+    interval            = "300"
+    path                = "/actuator/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = "30"
+  }
+}
+

@@ -1,0 +1,27 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Login ECR
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REPO}
+      - echo ${REPO_HTTPS}
+      - git clone -b ${BRANCH} ${REPO_HTTPS} repo
+      - cd repo
+  build:
+    commands:
+      - mvn clean package -q -Dskiptests=true
+      - docker build -t ${PERFIX}-api .
+      - docker tag ${PERFIX}-api:latest ${ECR_REPO}:latest  
+  post_build:
+    commands:
+      - docker push ${ECR_REPO}:latest
+      - printf '[{"name":"%s","imageUri":"%s"}]' ${PERFIX}-api ${ECR_REPO}:latest > imagedefinitions.json
+      - printf '{"containerDefinitions":[{"name":"%s","image":"%s","cpu":256,"memory":256,"essential":true,"portMappings":[{"containerPort":8080,"hostPort":0,"protocol":"tcp"}]}],"family":"%s"}' ${PERFIX}-api ${ECR_REPO}:latest ${PERFIX}-task-definition> taskdef.json
+      - cp imagedefinitions.json ../
+      - cp appspec.yaml ../
+      - cp taskdef.json ../
+artifacts:
+  files: 
+    - 'imagedefinitions.json'
+    - 'appspec.yaml'
+    - 'taskdef.json'
