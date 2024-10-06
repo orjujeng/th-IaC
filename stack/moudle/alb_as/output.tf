@@ -11,7 +11,7 @@ output "applcition_load_balance_dns_name" {
 }
 
 output "application_ecs_base_on_ec2_autoscaling_arn" {
- value = aws_autoscaling_group.application_ecs_base_on_ec2_autoscaling[0].arn
+ value = length(aws_alb_listener.apllcation_alb_ecs_listener) ==0 ?"":aws_autoscaling_group.application_ecs_base_on_ec2_autoscaling[0].arn
 }
 
 output "ecs_target_group_arn" {

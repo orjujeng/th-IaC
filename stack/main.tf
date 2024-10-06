@@ -24,7 +24,7 @@ module "alb_as" {
   expect_size = var.shutdown_saving_cost ? 1 : 0
   shutdown_saving_cost = var.shutdown_saving_cost
   ecs_base_on_ec2_min_size = 0
-  ecs_base_on_ec2_max_size = 2
+  ecs_base_on_ec2_max_size = var.shutdown_saving_cost ? 2 : 0
   ecs_base_on_ec2_desired_capacity = var.shutdown_saving_cost ? 2 : 0 #ecs中ec2 数量
   ecs_cluster_name = module.ecs[0].ecs_cluster_name
 }

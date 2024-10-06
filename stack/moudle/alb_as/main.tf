@@ -129,7 +129,7 @@ resource "aws_autoscaling_group" "applcition_ec2_autoscaling" {
 
 #ecs的容器使用基于ec2的实例所以需要创建一个ec2的sg，但是却是ecs使用。
 resource "aws_autoscaling_group" "application_ecs_base_on_ec2_autoscaling" {
-  count    = var.mode== "ecs" ? 1 : 0 
+  count    = var.mode== "ecs" && var.shutdown_saving_cost? 1 : 0 
   name     = "${var.perfix}_ecs_base_on_ec2_autoscaling"
   max_size = var.ecs_base_on_ec2_max_size
   min_size = var.ecs_base_on_ec2_min_size
