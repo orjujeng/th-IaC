@@ -12,10 +12,10 @@ resource "aws_security_group" "application_container_sg" {
   }
 
   ingress {
-    description     = "ecc alb to ec2"
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
+    description     = "alb to ec2"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
     security_groups = [data.aws_security_group.application_alb_sg.id]
   }
 

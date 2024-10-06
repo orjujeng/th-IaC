@@ -46,7 +46,7 @@ resource "aws_alb" "applicaton_load_balance" {
 resource "aws_lb_target_group" "applicaton_target_group" {
   count        = var.mode=="ecc" ? 1 : 0 
   name        = "${var.perfix}-${var.mode}-target-group"
-  port        = "80"
+  port        = "8080"
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.application_vpc.id
   target_type = "instance"
@@ -66,7 +66,7 @@ resource "aws_lb_target_group" "applicaton_target_group" {
 resource "aws_lb_listener" "applicaton_lb_ass_target" {
   count             = var.mode=="ecc" && var.shutdown_saving_cost? 1 : 0 
   load_balancer_arn = aws_alb.applicaton_load_balance[0].arn
-  port              = "80"
+  port              = "8080"
   protocol          = "HTTP"
 
   default_action {
@@ -150,16 +150,21 @@ resource "aws_alb_listener" "apllcation_alb_ecs_listener" {
   load_balancer_arn =  aws_alb.applicaton_load_balance[0].arn 
   port              = "80"
   protocol          = "HTTP"
+
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.application_specific_api_target_group[0].arn
+  }
+
+  lifecycle {
+    ignore_changes = [default_action[0].target_group_arn] #pipeline会切换 tgb和tg，并且一旦恢复，部署会有问题，所以默认不接受改变
   }
 }
 #ecs 具体service的tg（蓝绿两组）
 resource "aws_lb_target_group" "application_specific_api_target_group" {
   count                = var.mode== "ecs" ? 1 : 0 
   name                 = "${var.perfix}-api-tg"
-  port                 = "80"
+  port                 = 80
   protocol             = "HTTP"
   vpc_id               = data.aws_vpc.application_vpc.id
   deregistration_delay = 120
@@ -177,10 +182,11 @@ resource "aws_lb_target_group" "application_specific_api_target_group" {
 resource "aws_lb_target_group" "application_specific_api_target_group_b" {
   count                = var.mode== "ecs" ? 1 : 0 
   name                 = "${var.perfix}-api-tg-b"
-  port                 = "80"
+  port                 = 80
   protocol             = "HTTP"
   vpc_id               = data.aws_vpc.application_vpc.id
   deregistration_delay = 120
+  
  health_check {
     healthy_threshold   = "5"
     unhealthy_threshold = "2"
