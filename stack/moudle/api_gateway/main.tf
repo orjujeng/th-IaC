@@ -13,6 +13,9 @@
 resource "aws_api_gateway_rest_api" "application_rest_api_gateway" {
   name        = "${var.perfix}-api-gateway"
   description = "API Gateway for application"
+  endpoint_configuration {
+    types = ["REGIONAL"]  # 指定为区域类型
+  }
 }
 
 # 创建 API Gateway 资源

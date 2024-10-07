@@ -49,4 +49,5 @@ module "route53" {
   perfix           = local.perfix
   rds_address      = module.rds[0].rds_address
   redis_address    = [module.redis[0].redis_address]
+  fe_domain_name   = var.fe_domain_name
 }

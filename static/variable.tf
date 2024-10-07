@@ -15,3 +15,7 @@ variable "shutdown_saving_cost" {
   type    = bool
   default = false
 }
+
+variable "fe_domain_name" {
+  type = string
+}

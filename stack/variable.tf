@@ -24,3 +24,11 @@ variable "mode" {
   type     = string
   nullable = false
 }
+
+variable "fe_domain_name" {
+  type = string
+}
+
+variable "domain_name" {
+  type = string
+}

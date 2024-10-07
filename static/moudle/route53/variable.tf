@@ -14,3 +14,7 @@ variable "rds_address" {
 variable "redis_address" {
   type = list
 }
+
+variable "fe_domain_name" {
+  type = string
+}

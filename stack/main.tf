@@ -79,3 +79,16 @@ module "ecs" {
     aws.east = aws.us_east_1
   }
 }
+
+module "cloudfront" {
+   count            = var.start_service && var.shutdown_saving_cost ? 1 : 0
+   source           = "./moudle/cloudfront"
+   domain_name      = var.domain_name
+   perfix           = local.perfix
+   fe_domain_name   = var.fe_domain_name
+   aws_api_gateway_URL = module.api_gateway[0].aws_api_gateway_URL
+   shutdown_saving_cost =var.shutdown_saving_cost
+   providers = {
+    aws.east = aws.us_east_1
+  }
+}

@@ -6,7 +6,6 @@ resource "aws_s3_bucket" "s3_frontend" {
   }
 }
 
-
 #codebuild 前端的role:
 resource "aws_iam_role" "applcation_frontend_codebuild_role" {
   name               = "${var.perfix}_frontend_codebuild_role"
