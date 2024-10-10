@@ -25,11 +25,11 @@ resource "aws_route53_record" "application_certificate_valid_record" {
   type            = each.value.type
 }
 
-resource "aws_acm_certificate_validation" "application_certificate_valid" {
-  count =var.shutdown_saving_cost?1:0
-  certificate_arn         = aws_acm_certificate.application_certificate[0].arn
-  validation_record_fqdns = [for record in aws_route53_record.application_certificate_valid_record : record.fqdn]
-}
+# resource "aws_acm_certificate_validation" "application_certificate_valid" {
+#   count =var.shutdown_saving_cost?1:0
+#   certificate_arn         = aws_acm_certificate.application_certificate[0].arn
+#   validation_record_fqdns = [for record in aws_route53_record.application_certificate_valid_record : record.fqdn]
+# }
 
 
 resource "aws_route53_record" "application_cloudfront_alias_record" {
